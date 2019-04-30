@@ -1,3 +1,5 @@
+# *** DEBUG version for testing only the plugin ***
+#
 # appveyor.yml for editorconfig-vim.  Currently only tests the core.
 # Modified from https://github.com/ppalaga/ec4j/commit/1c849658fb189cd95bc41af95acd43b4f0d75a48
 #
@@ -36,8 +38,9 @@ image:
 
 # === How to build ===
 
+# TODO also cache Ruby bundles
 cache:
-    - C:\vim -> appveyor.yml, fetch-vim.bat
+    - C:\vim -> .appveyor.yml, tests\fetch-vim.bat
 
 environment:
   VIM_EXE: C:\vim\vim\vim80\vim.exe
@@ -62,26 +65,67 @@ for:
     environment:
       VIM_EXE: UNDEFINED
     cache:
-      - $APPVEYOR_BUILD_FOLDER/vim -> appveyor.yml, fetch-vim.sh
+      - $APPVEYOR_BUILD_FOLDER/vim -> .appveyor.yml, tests/fetch-vim.sh
+    stack: ruby 2.4.5
 
     # Plus, don't run Ubuntu if the commit message includes [ci-win]
     skip_commits:
       message: /\[ci-win\]/
 
 install:
+  # Check what's installed by default
+  - sh: lsb_release -a || true
+  - sh: uname -a || true
+  - cmd: ver
+  - ruby -v
+  - cmake --version
+  - ctest --version
+
+  # Load the core and plugin test submodules
+  - git submodule update --init --recursive
+
   # Ubuntu-specific setup.  These carry forward to the build_script.
   - sh: export VIM_EXE="$APPVEYOR_BUILD_FOLDER/vim/bin/vim"
   - sh: export PATH="$PATH":$APPVEYOR_BUILD_FOLDER/vim/bin
   - sh: echo "$VIM_EXE , $PATH"
 
-  # Cross-platform - test the core
-  - cmake --version
-  - git submodule update --init --recursive
-  - cmd: tests\fetch-vim
-  - sh: tests/fetch-vim.sh
+#  # Windows-specific setup.  Setup command thanks to
+#  # https://github.com/libyal/libbde/blob/master/appveyor.yml
+#  - cmd: C:\cygwin64\setup-x86_64.exe -qgnNdO -l C:\cygwin64\var\cache\setup -R c:\cygwin64 -s http://cygwin.mirror.constant.com -P startx -P gvim
+
+  # Cross-platform - set up to test the core
+#  - cmd: tests\fetch-vim
+#  - sh: tests/fetch-vim.sh
+
+  # Set up to test the plugin.  For now, Windows only.
+  # USERPROFILE path is modified from file (referenced by the Ruby docs)
+  # https://github.com/MSP-Greg/appveyor_ruby/blob/master/ruby_loop.ps1 .
+  # Without the gems bin directory in the PATH, I was getting SSL errors
+  # (presumably because of version mismatches).
+  - cmd: set PATH=C:\Ruby24-x64\bin;%USERPROFILE%\.gem\ruby\2.4.5-1\bin;%PATH%
+#  - cmd: gem install bundler
+#  - cmd: gem install rake
+#  - cmd: bundle _1.15.4_ install
+
+  - sh: sudo apt-get update
+  - sh: sudo apt install -yV ruby-bundler vim
+
+  - cmd: set BUNDLE_GEMFILE=%APPVEYOR_BUILD_FOLDER%\tests\plugin\Gemfile
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%\tests\plugin
+  - sh: cd "$APPVEYOR_BUILD_FOLDER/tests/plugin"
+  - bundle install
+
+# Diagnostics
+before_test:
+  - bundle -v
+  - rake -V
+#  # Dump the contents of ~\.gem, just because I'm curious.  Always succeeds.
+#  - ps: $x = test-path "${env:USERPROFILE}\.gem" -pathtype container ; if($x) { dir -recurse "${env:USERPROFILE}\.gem" | select FullName  } ; $true
 
 build_script:
   # Build the core tests
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%
+  - sh: cd "$APPVEYOR_BUILD_FOLDER"
   - cd tests
   - cd core
   - mkdir build
@@ -94,14 +138,20 @@ build_script:
 
 test_script:
   # Run the core tests
-  - ctest . --output-on-failure
+#  - ctest . --output-on-failure
 
   # CTestCustom specifies skipping UTF-8 tests on Windows.
   - cmd: echo "Reminder - did not try UTF-8"
   - sh: echo "Reminder - tried UTF-8"
 
+  # Run the plugin tests.  TODO we can't run them on Windows yet because
+  # of https://github.com/AndrewRadev/vimrunner/issues/32 .
+  # Instead, run them on Ubuntu.
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%\tests\plugin
+  - sh: cd "$APPVEYOR_BUILD_FOLDER"/tests/plugin
+  - sh: bundle exec rake
+
 on_failure:
   - echo "failed"
   - cmd: type tests\core\build\Testing\Temporary\LastTest.log
   - sh: cat tests/core/build/Testing/Temporary/LastTest.log
-
