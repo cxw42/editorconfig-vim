@@ -140,21 +140,6 @@ function! editorconfig_core#currbuf_cli(names, job) " out_name, in_name, ...
 endfunction "editorconfig_core#currbuf_cli
 
 " }}}1
-" === Caching (not yet used) ============================================ {{{1
-
-" Cache for .editorconfig files.  Full path -> settings map.
-let s:config_cache = {}
-
-" Cache for settings to be applied.
-" Full path of the file being edited -> settings map.
-let s:computed_cache = {}
-
-function! editorconfig_core#clear_caches()
-    let s:config_cache = {}
-    let s:computed_cache = {}
-endfunction "editorconfig_core#currbuf_cli
-
-" }}}1
 
 let &cpo = s:saved_cpo
 unlet! s:saved_cpo
