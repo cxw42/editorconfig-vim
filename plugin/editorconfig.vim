@@ -220,6 +220,9 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
     endif
     call setbufvar(l:bufnr, 'editorconfig_tried', 1)
 
+    " XXX
+    echo "UseConfigFiles " . a:from_autocmd . " " . l:buffer_name . ", " . &buftype
+
     if empty(l:buffer_name)
         if g:EditorConfig_enable_for_new_buf
             let l:buffer_name = getcwd() . "/."
@@ -286,6 +289,9 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
                     \ s:editorconfig_core_mode |
                     \ echohl None
     endif
+
+    " XXX
+    echo input("Press enter")
 endfunction " }}}1
 
 " Custom commands, and autoloading {{{1
@@ -319,14 +325,16 @@ call s:EditorConfigEnable(1)
 
 function! s:UseConfigFiles_VimCore(bufnr, target)
 " Use the vimscript EditorConfig core
-    try
+    " try
+        " XXX
+        echo "VimCore"
         let l:config = editorconfig_core#handler#get_configurations(
             \ { 'target': a:target } )
         call s:ApplyConfig(a:bufnr, l:config)
         return 0    " success
-    catch
-        return 1    " failure
-    endtry
+    " catch
+    "    return 1    " failure
+    " endtry
 endfunction
 
 function! s:UseConfigFiles_ExternalCommand(bufnr, target)
@@ -397,6 +405,8 @@ endfunction " }}}2
 " }}}1
 
 function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
+    " XXX
+    echo "ApplyConfig CHECKING " a:bufnr . " " . &buftype
     " Only process normal buffers (do not treat help files as '.txt' files)
     if index(['', 'acwrite'], &buftype) == -1
         return
@@ -406,27 +416,43 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
         echo 'Options: ' . string(a:config)
     endif
 
+    " XXX
+    echo "Try indent_style"
     if s:IsRuleActive('indent_style', a:config)
         if a:config["indent_style"] == "tab"
+            " XXX
+            echo "set noet"
             call setbufvar(a:bufnr, '&expandtab', 0)
         elseif a:config["indent_style"] == "space"
+            " XXX
+            echo "set et"
             call setbufvar(a:bufnr, '&expandtab', 1)
         endif
     endif
 
+    " XXX
+    echo "Try tab_width"
     if s:IsRuleActive('tab_width', a:config)
         let l:tabstop = str2nr(a:config["tab_width"])
         call setbufvar(a:bufnr, '&tabstop', l:tabstop)
+        " XXX
+        echo "set tabstop " . l:tabstop
     else
         " Grab the current ts so we can use it below
         let l:tabstop = getbufvar(a:bufnr, '&tabstop')
+        " XXX
+        echo "get tabstop " . l:tabstop
     endif
 
+    " XXX
+    echo "Try indent_size"
     if s:IsRuleActive('indent_size', a:config)
         " if indent_size is 'tab', set shiftwidth to tabstop;
         " if indent_size is a positive integer, set shiftwidth to the integer
         " value
         if a:config["indent_size"] == "tab"
+            " XXX
+            echo "set tab indent " . l:tabstop
             call setbufvar(a:bufnr, '&shiftwidth', l:tabstop)
             if type(g:EditorConfig_softtabstop_tab) != type([])
                 call setbufvar(a:bufnr, '&softtabstop',
@@ -435,6 +461,8 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
             endif
         else
             let l:indent_size = str2nr(a:config["indent_size"])
+            " XXX
+            echo "set space indent " . l:indent_size
             if l:indent_size > 0
                 call setbufvar(a:bufnr, '&shiftwidth', l:indent_size)
                 if type(g:EditorConfig_softtabstop_space) != type([])
@@ -447,6 +475,8 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
 
     endif
 
+    " XXX
+    echo "Try end_of_line"
     if s:IsRuleActive('end_of_line', a:config) &&
                 \ getbufvar(a:bufnr, '&modifiable')
         if a:config["end_of_line"] == "lf"
@@ -458,6 +488,8 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
         endif
     endif
 
+    " XXX
+    echo "Try charset"
     if s:IsRuleActive('charset', a:config) &&
                 \ getbufvar(a:bufnr, '&modifiable')
         if a:config["charset"] == "utf-8"
@@ -478,6 +510,8 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
         endif
     endif
 
+    " XXX
+    echo "Try ttw"
     augroup editorconfig_trim_trailing_whitespace
         autocmd! BufWritePre <buffer>
         if s:IsRuleActive('trim_trailing_whitespace', a:config) &&
@@ -486,6 +520,8 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
         endif
     augroup END
 
+    " XXX
+    echo "Try ifn"
     if s:IsRuleActive('insert_final_newline', a:config)
         if exists('+fixendofline')
             if a:config["insert_final_newline"] == "false"
@@ -500,6 +536,8 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
         endif
     endif
 
+    " XXX
+    echo "Try mll"
     " highlight the columns following max_line_length
     if s:IsRuleActive('max_line_length', a:config) &&
                 \ a:config['max_line_length'] != 'off'
