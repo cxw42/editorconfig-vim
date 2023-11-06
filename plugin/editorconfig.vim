@@ -205,14 +205,50 @@ function! s:GetFilenames(path, filename) " {{{1
     return l:path_list
 endfunction " }}}1
 
+function! s:GetAutocmdBufferInfo() abort
+    " Get the name and path of the current buffer.
+    " This is complicated because <afile> sometimes has no expansion (#221).
+    try
+        let l:buffer_name = expand('<afile>:p')
+        let l:buffer_name_from = 'afile'
+    catch /E495/
+        let l:buffer_name = expand('<amatch>:p')
+        let l:buffer_name_from = 'amatch'
+    endtry
+
+    try
+        let l:buffer_path = expand('<afile>:p:h')
+        let l:buffer_path_from = 'afile'
+    catch /E495/
+        let l:buffer_path = expand('<amatch>:p:h')
+        let l:buffer_path_from = 'amatch'
+    endtry
+
+    return {
+        \ 'bufnr': str2nr(expand('<abuf>')),
+        \ 'name': l:buffer_name,
+        \ 'name_from': l:buffer_name_from,
+        \ 'path': l:buffer_path,
+        \ 'path_from': l:buffer_path_from
+        \ }
+
+endfunction
+
 function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buffer {{{1
     " from_autocmd is truthy if called from an autocmd, falsy otherwise.
 
     " Get the properties of the buffer we are working on
     if a:from_autocmd
-        let l:bufnr = str2nr(expand('<abuf>'))
-        let l:buffer_name = expand('<afile>:p')
-        let l:buffer_path = expand('<afile>:p:h')
+
+        let l:buffer_info = s:GetAutocmdBufferInfo()
+        if g:EditorConfig_verbose
+            echom 'Buffer info: ' . string(l:buffer_info)
+        endif
+
+        let l:bufnr = l:buffer_info.bufnr
+        let l:buffer_name = l:buffer_info.name
+        let l:buffer_path = l:buffer_info.path
+
     else
         let l:bufnr = bufnr('%')
         let l:buffer_name = expand('%:p')
