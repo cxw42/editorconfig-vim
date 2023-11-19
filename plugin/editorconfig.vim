@@ -488,7 +488,7 @@ function! s:ApplyConfig(bufnr, config) abort
 
     if s:IsRuleActive('tab_width', a:config)
         let l:tabstop = str2nr(a:config["tab_width"])
-        " call setbufvar(a:bufnr, '&tabstop', l:tabstop)
+        call setbufvar(a:bufnr, '&tabstop', l:tabstop)
         " XXX
         echo "set tabstop " . l:tabstop
     else
