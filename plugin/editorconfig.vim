@@ -460,7 +460,7 @@ function! s:SetCharset(bufnr, charset) abort " apply config['charset']
         if g:EditorConfig_verbose
             echom 'Setting nomodified on buffer ' . a:bufnr
         endif
-        " call setbufvar(a:bufnr, '&modified', 0)
+        call setbufvar(a:bufnr, '&modified', 0)
     endif
     echom a:bufnr . " buffer modified 450? " . (getbufvar(a:bufnr, '&modified') ? "yes" : "no")
 endfunction
@@ -476,11 +476,11 @@ function! s:ApplyConfig(bufnr, config) abort
         if a:config["indent_style"] == "tab"
             " XXX
             echo "set noet"
-            " call setbufvar(a:bufnr, '&expandtab', 0)
+            call setbufvar(a:bufnr, '&expandtab', 0)
         elseif a:config["indent_style"] == "space"
             " XXX
             echo "set et"
-            " call setbufvar(a:bufnr, '&expandtab', 1)
+            call setbufvar(a:bufnr, '&expandtab', 1)
         endif
     endif
 
@@ -488,7 +488,7 @@ function! s:ApplyConfig(bufnr, config) abort
 
     if s:IsRuleActive('tab_width', a:config)
         let l:tabstop = str2nr(a:config["tab_width"])
-        " call setbufvar(a:bufnr, '&tabstop', l:tabstop)
+        call setbufvar(a:bufnr, '&tabstop', l:tabstop)
         " XXX
         echo "set tabstop " . l:tabstop
     else
@@ -507,7 +507,7 @@ function! s:ApplyConfig(bufnr, config) abort
         if a:config["indent_size"] == "tab"
             " XXX
             echo "set tab indent " . l:tabstop
-            " call setbufvar(a:bufnr, '&shiftwidth', l:tabstop)
+            call setbufvar(a:bufnr, '&shiftwidth', l:tabstop)
             if type(g:EditorConfig_softtabstop_tab) != type([])
                 call setbufvar(a:bufnr, '&softtabstop',
                             \ g:EditorConfig_softtabstop_tab > 0 ?
