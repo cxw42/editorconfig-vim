@@ -476,11 +476,11 @@ function! s:ApplyConfig(bufnr, config) abort
         if a:config["indent_style"] == "tab"
             " XXX
             echo "set noet"
-            " call setbufvar(a:bufnr, '&expandtab', 0)
+            call setbufvar(a:bufnr, '&expandtab', 0)
         elseif a:config["indent_style"] == "space"
             " XXX
             echo "set et"
-            " call setbufvar(a:bufnr, '&expandtab', 1)
+            call setbufvar(a:bufnr, '&expandtab', 1)
         endif
     endif
 
