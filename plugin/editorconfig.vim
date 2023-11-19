@@ -418,7 +418,7 @@ function! s:ApplyConfig(bufnr, config) abort " Set the buffer options {{{1
 
     if s:IsRuleActive('tab_width', a:config)
         let l:tabstop = str2nr(a:config["tab_width"])
-        " call setbufvar(a:bufnr, '&tabstop', l:tabstop)
+        call setbufvar(a:bufnr, '&tabstop', l:tabstop)
     else
         " Grab the current ts so we can use it below
         let l:tabstop = getbufvar(a:bufnr, '&tabstop')
