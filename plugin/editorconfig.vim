@@ -136,7 +136,7 @@ function! s:InitializeExternalCommand()
     endif
 
     if g:EditorConfig_verbose
-        echo 'Checking for external command ' . s:editorconfig_exec_path . ' ...'
+        echom 'Checking for external command ' . s:editorconfig_exec_path . ' ...'
     endif
 
     if !executable(s:editorconfig_exec_path)
@@ -209,7 +209,8 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
     " from_autocmd is truthy if called from an autocmd, falsy otherwise.
 
     " Get the properties of the buffer we are working on
-    if a:from_autocmd
+    " XXX checking if the from_autocmd logic causes #224
+    if 0 && a:from_autocmd
         let l:bufnr = str2nr(expand('<abuf>'))
         let l:buffer_name = expand('<afile>:p')
         let l:buffer_path = expand('<afile>:p:h')
@@ -219,6 +220,11 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
         let l:buffer_path = expand('%:p:h')
     endif
     call setbufvar(l:bufnr, 'editorconfig_tried', 1)
+
+    if g:EditorConfig_verbose
+        echom 'Processing buffer ' . string(l:bufnr) . ', name ' . l:buffer_name
+            \ . ', path ' . l:buffer_path
+    endif
 
     " Only process normal buffers (do not treat help files as '.txt' files)
     " When starting Vim with a directory, the buftype might not yet be set:
@@ -232,7 +238,7 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
             let l:buffer_name = getcwd() . "/."
         else
             if g:EditorConfig_verbose
-                echo 'Skipping EditorConfig for unnamed buffer'
+                echom 'Skipping EditorConfig for unnamed buffer'
             endif
             return
         endif
@@ -240,7 +246,7 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
 
     if getbufvar(l:bufnr, 'EditorConfig_disable', 0)
         if g:EditorConfig_verbose
-            echo 'EditorConfig disabled --- skipping buffer "' . l:buffer_name . '"'
+            echom 'EditorConfig disabled --- skipping buffer "' . l:buffer_name . '"'
         endif
         return
     endif
@@ -249,7 +255,7 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
     for pattern in g:EditorConfig_exclude_patterns
         if l:buffer_name =~ pattern
             if g:EditorConfig_verbose
-                echo 'Skipping EditorConfig for buffer "' . l:buffer_name .
+                echom 'Skipping EditorConfig for buffer "' . l:buffer_name .
                     \ '" based on pattern "' . pattern . '"'
             endif
             return
@@ -276,7 +282,7 @@ function! s:UseConfigFiles(from_autocmd) abort " Apply config to the current buf
     endif
 
     if g:EditorConfig_verbose
-        echo 'Applying EditorConfig ' . s:editorconfig_core_mode .
+        echom 'Applying EditorConfig ' . s:editorconfig_core_mode .
             \ ' on file "' . l:buffer_name . '"'
     endif
 
@@ -377,7 +383,7 @@ function! s:SpawnExternalParser(bufnr, cmd, target) " {{{2
     endif
 
     if g:EditorConfig_verbose
-        echo 'Output from EditorConfig core executable:'
+        echom 'Output from EditorConfig core executable:'
         echo l:parsing_result
     endif
 
@@ -435,7 +441,7 @@ function! s:SetCharset(bufnr, charset) abort " apply config['charset']
     " of the default, we didn't actually modify the file.
     if !l:orig_modified && (l:orig_fenc ==# '') && (l:new_fenc ==# l:orig_enc)
         if g:EditorConfig_verbose
-            echo 'Setting nomodified on buffer ' . a:bufnr
+            echom 'Setting nomodified on buffer ' . a:bufnr
         endif
         call setbufvar(a:bufnr, '&modified', 0)
     endif
@@ -443,7 +449,7 @@ endfunction
 
 function! s:ApplyConfig(bufnr, config) abort
     if g:EditorConfig_verbose
-        echo 'Options: ' . string(a:config)
+        echom 'Options: ' . string(a:config)
     endif
 
     if s:IsRuleActive('indent_style', a:config)
