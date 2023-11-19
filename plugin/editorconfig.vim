@@ -209,8 +209,7 @@ function! s:UseConfigFiles(from_autocmd, which) abort " Apply config to the curr
     " from_autocmd is truthy if called from an autocmd, falsy otherwise.
 
     " Get the properties of the buffer we are working on
-    " XXX checking if the from_autocmd logic causes #224
-    if 0 && a:from_autocmd
+    if a:from_autocmd
         let l:bufnr = str2nr(expand('<abuf>'))
         let l:buffer_name = expand('<afile>:p')
         let l:buffer_path = expand('<afile>:p:h')
@@ -319,7 +318,7 @@ function! s:EditorConfigEnable(should_enable)
         if a:should_enable
             autocmd BufNewFile,BufReadPost,BufFilePost * call s:UseConfigFiles(1, "bnf")
             autocmd VimEnter * call s:UseConfigFiles(1, "ve")
-            autocmd BufNew * call s:UseConfigFiles(1, "bn")
+            " XXX may cause #224 autocmd BufNew * call s:UseConfigFiles(1, "bn")
         endif
     augroup END
 endfunction
