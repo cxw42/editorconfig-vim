@@ -430,26 +430,26 @@ function! s:SetCharset(bufnr, charset) abort " apply config['charset']
 
     if a:charset == "utf-8"
         echom a:bufnr . " buffer modified 487? " . (getbufvar(a:bufnr, '&modified') ? "yes" : "no")
-        " call setbufvar(a:bufnr, '&fileencoding', 'utf-8')
+        call setbufvar(a:bufnr, '&fileencoding', 'utf-8')
         echom a:bufnr . " buffer modified 489? " . (getbufvar(a:bufnr, '&modified') ? "yes" : "no")
-        " call setbufvar(a:bufnr, '&bomb', 0)
+        call setbufvar(a:bufnr, '&bomb', 0)
         echom a:bufnr . " buffer modified 491? " . (getbufvar(a:bufnr, '&modified') ? "yes" : "no")
     elseif a:charset == "utf-8-bom"
         echom 487
-        " call setbufvar(a:bufnr, '&fileencoding', 'utf-8')
-        " call setbufvar(a:bufnr, '&bomb', 1)
+        call setbufvar(a:bufnr, '&fileencoding', 'utf-8')
+        call setbufvar(a:bufnr, '&bomb', 1)
     elseif a:charset == "latin1"
         echom 491
-        " call setbufvar(a:bufnr, '&fileencoding', 'latin1')
-        " call setbufvar(a:bufnr, '&bomb', 0)
+        call setbufvar(a:bufnr, '&fileencoding', 'latin1')
+        call setbufvar(a:bufnr, '&bomb', 0)
     elseif a:charset == "utf-16be"
         echom 495
-        " call setbufvar(a:bufnr, '&fileencoding', 'utf-16be')
-        " call setbufvar(a:bufnr, '&bomb', 1)
+        call setbufvar(a:bufnr, '&fileencoding', 'utf-16be')
+        call setbufvar(a:bufnr, '&bomb', 1)
     elseif a:charset == "utf-16le"
         echom 499
-        " call setbufvar(a:bufnr, '&fileencoding', 'utf-16le')
-        " call setbufvar(a:bufnr, '&bomb', 1)
+        call setbufvar(a:bufnr, '&fileencoding', 'utf-16le')
+        call setbufvar(a:bufnr, '&bomb', 1)
     endif
 
     let l:new_fenc = getbufvar(a:bufnr, "&fileencoding")
