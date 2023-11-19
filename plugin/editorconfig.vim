@@ -91,7 +91,7 @@ let s:initialized = 0
 " }}}1
 
 " shellslash handling {{{1
-function! s:DisableShellSlash(bufnr) abort " {{{2
+function! s:DisableShellSlash(bufnr) " {{{2
     " disable shellslash for proper escaping of Windows paths
 
     " In Windows, 'shellslash' also changes the behavior of 'shellescape'.
@@ -105,7 +105,7 @@ function! s:DisableShellSlash(bufnr) abort " {{{2
     endif
 endfunction " }}}2
 
-function! s:ResetShellSlash(bufnr) abort " {{{2
+function! s:ResetShellSlash(bufnr) " {{{2
     " reset shellslash to the user-set value, if any
     if exists('s:old_shellslash')
         call setbufvar(a:bufnr, '&shellslash', s:old_shellslash)
@@ -116,7 +116,7 @@ endfunction " }}}2
 
 " Mode initialization functions {{{1
 
-function! s:InitializeVimCore() abort
+function! s:InitializeVimCore()
 " Initialize vim core.  Returns 1 on failure; 0 on success
 " At the moment, all we need to do is to check that it is installed.
     try
@@ -127,7 +127,7 @@ function! s:InitializeVimCore() abort
     return 0
 endfunction
 
-function! s:InitializeExternalCommand() abort
+function! s:InitializeExternalCommand()
 " Initialize external_command mode
 
     if empty(s:editorconfig_exec_path)
@@ -148,7 +148,7 @@ function! s:InitializeExternalCommand() abort
 endfunction
 " }}}1
 
-function! s:Initialize() abort " Initialize the plugin.  {{{1
+function! s:Initialize() " Initialize the plugin.  {{{1
     " Returns truthy on error, falsy on success.
 
     if empty(s:editorconfig_core_mode)
@@ -189,7 +189,7 @@ function! s:Initialize() abort " Initialize the plugin.  {{{1
     return 0
 endfunction " }}}1
 
-function! s:GetFilenames(path, filename) abort " {{{1
+function! s:GetFilenames(path, filename) " {{{1
 " Yield full filepath for filename in each directory in and above path
 
     let l:path_list = []
@@ -312,7 +312,7 @@ endfunction " }}}1
 " Custom commands, and autoloading {{{1
 
 " Autocommands, and function to enable/disable the plugin {{{2
-function! s:EditorConfigEnable(should_enable) abort
+function! s:EditorConfigEnable(should_enable)
     augroup editorconfig
         autocmd!
         if a:should_enable
@@ -339,7 +339,7 @@ call s:EditorConfigEnable(1)
 
 " UseConfigFiles function for different modes {{{1
 
-function! s:UseConfigFiles_VimCore(bufnr, target) abort
+function! s:UseConfigFiles_VimCore(bufnr, target)
 " Use the vimscript EditorConfig core
     try
         echo "VimCore"
@@ -352,7 +352,7 @@ function! s:UseConfigFiles_VimCore(bufnr, target) abort
     endtry
 endfunction
 
-function! s:UseConfigFiles_ExternalCommand(bufnr, target) abort
+function! s:UseConfigFiles_ExternalCommand(bufnr, target)
 " Use external EditorConfig core (e.g., the C core)
 
     call s:DisableShellSlash(a:bufnr)
@@ -362,7 +362,7 @@ function! s:UseConfigFiles_ExternalCommand(bufnr, target) abort
     call s:SpawnExternalParser(a:bufnr, l:exec_path, a:target)
 endfunction
 
-function! s:SpawnExternalParser(bufnr, cmd, target) abort " {{{2
+function! s:SpawnExternalParser(bufnr, cmd, target) " {{{2
 " Spawn external EditorConfig. Used by s:UseConfigFiles_ExternalCommand()
 
     let l:cmd = a:cmd
@@ -650,7 +650,7 @@ endfunction
 
 " }}}1
 
-function! s:TrimTrailingWhitespace() abort " {{{1
+function! s:TrimTrailingWhitespace() " {{{1
     " Called from within a buffer-specific autocmd, so we can use '%'
     if getbufvar('%', '&modifiable')
         " don't lose user position when trimming trailing whitespace
@@ -663,7 +663,7 @@ function! s:TrimTrailingWhitespace() abort " {{{1
     endif
 endfunction " }}}1
 
-function! s:IsRuleActive(name, config) abort " {{{1
+function! s:IsRuleActive(name, config) " {{{1
     return index(g:EditorConfig_disable_rules, a:name) < 0 &&
                  \ has_key(a:config, a:name)
 endfunction "}}}1
